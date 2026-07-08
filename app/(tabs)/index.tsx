@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import {
+  Platform,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   View,
-  ScrollView,
-  Pressable,
-  SafeAreaView,
-  StatusBar,
-  Platform,
 } from 'react-native';
 
-type Screen = 'home' | 'tictactoe';
+type Screen = 'home' | 'tictactoe' | 'rps';
 type BoardState = (string | null)[];
 
 export default function HomeScreen() {
@@ -23,6 +23,11 @@ export default function HomeScreen() {
   const [winner, setWinner] = useState<string | null>(null); // 'X' | 'O' | 'Draw' | null
   // Player's chosen symbol (X or O). Randomly assigned each new game.
   const [playerSymbol, setPlayerSymbol] = useState<'X' | 'O'>('X');
+
+  // Rock Paper Scissors state
+  const [rpsPlayer, setRpsPlayer] = useState<string | null>(null);
+  const [rpsComputer, setRpsComputer] = useState<string | null>(null);
+  const [rpsResult, setRpsResult] = useState<string>('');
 
   // Win Detection Logic
   // Combines 8 winning lines: 3 rows, 3 columns, and 2 diagonals
@@ -45,8 +50,6 @@ export default function HomeScreen() {
     }
     return null;
   };
-
-
 
   const resetGame = () => {
     setBoard(Array(9).fill(null));
@@ -81,27 +84,27 @@ export default function HomeScreen() {
     }
   };
 
-// Handles player's tap on a board cell
-const handleCellPress = (idx: number) => {
-  // Ignore taps if the game is over or cell already occupied
-  if (winner || board[idx]) return;
+  // Handles player's tap on a board cell
+  const handleCellPress = (idx: number) => {
+    // Ignore taps if the game is over or cell already occupied
+    if (winner || board[idx]) return;
 
-  // Place player's symbol on the board
-  const newBoard = [...board];
-  newBoard[idx] = playerSymbol;
-  setBoard(newBoard);
+    // Place player's symbol on the board
+    const newBoard = [...board];
+    newBoard[idx] = playerSymbol;
+    setBoard(newBoard);
 
-  // Check for win/draw after player's move
-  const result = checkWinner(newBoard);
-  if (result) {
-    setWinner(result);
-    return;
-  }
+    // Check for win/draw after player's move
+    const result = checkWinner(newBoard);
+    if (result) {
+      setWinner(result);
+      return;
+    }
 
-  // No winner yet – let the computer make its move
-  setIsXNext(false);
-  computerMove(newBoard);
-};
+    // No winner yet – let the computer make its move
+    setIsXNext(false);
+    computerMove(newBoard);
+  };
 
   const handleGoToGame = () => {
     resetGame();
@@ -110,6 +113,14 @@ const handleCellPress = (idx: number) => {
 
   const handleGoHome = () => {
     setCurrentScreen('home');
+  };
+
+  const handleGoToRPS = () => {
+    // Reset RPS state
+    setRpsPlayer(null);
+    setRpsComputer(null);
+    setRpsResult('');
+    setCurrentScreen('rps');
   };
 
   // --- RENDER HOME MENU SCREEN ---
@@ -130,7 +141,7 @@ const handleCellPress = (idx: number) => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Game Card */}
+          {/* Tic Tac Toe Game Card */}
           <Pressable
             onPress={handleGoToGame}
             style={({ pressed }) => [
@@ -152,95 +163,183 @@ const handleCellPress = (idx: number) => {
               </View>
             </View>
           </Pressable>
+
+          {/* Rock Paper Scissors Game Card */}
+          <Pressable
+            onPress={handleGoToRPS}
+            style={({ pressed }) => [
+              styles.cardContainer,
+              pressed && styles.cardPressed,
+            ]}
+          >
+            <View style={styles.cardInner}>
+              {/* Info Section */}
+              <View style={styles.infoContainer}>
+                <View style={styles.textDetails}>
+                  <Text style={styles.gameTitle}>Rock Paper Scissors</Text>
+                </View>
+                {/* Status Label (Play Button) */}
+                <View style={styles.playButton}>
+                  <Text style={styles.playButtonText}>PLAY</Text>
+                </View>
+              </View>
+            </View>
+          </Pressable>
         </ScrollView>
       </SafeAreaView>
     );
   }
 
   // --- RENDER TIC TAC TOE GAME SCREEN ---
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#1A0B2E" />
+  if (currentScreen === 'tictactoe') {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <StatusBar barStyle="light-content" backgroundColor="#1A0B2E" />
 
-      {/* Game Screen Header with Back Button */}
-      <View style={styles.gameHeader}>
-        <Pressable
-          onPress={handleGoHome}
-          style={({ pressed }) => [
-            styles.backButton,
-            pressed && styles.backButtonPressed
-          ]}
-        >
-          <View style={styles.backButtonShadow} />
-          <View style={styles.backButtonInner}>
-            <Text style={styles.backButtonText}>BACK</Text>
-          </View>
-        </Pressable>
-        <Text style={styles.gameHeaderTitle}>TIC-TAC-TOE</Text>
-        <View style={{ width: 68 }} /> {/* Placeholder to balance header alignment */}
-      </View>
+        {/* Game Screen Header with Back Button */}
+        <View style={styles.gameHeader}>
+          <Pressable
+            onPress={handleGoHome}
+            style={({ pressed }) => [
+              styles.backButton,
+              pressed && styles.backButtonPressed
+            ]}
+          >
+            <View style={styles.backButtonShadow} />
+            <View style={styles.backButtonInner}>
+              <Text style={styles.backButtonText}>BACK</Text>
+            </View>
+          </Pressable>
+          <Text style={styles.gameHeaderTitle}>TIC-TAC-TOE</Text>
+          <View style={{ width: 68 }} />{/* Placeholder to balance header alignment */}
+        </View>
 
-      <ScrollView contentContainerStyle={styles.gameContainer} scrollEnabled={false}>
-        {/* Game Status Banner */}
-        <View style={styles.statusBanner}>
-          {winner ? (
-            winner === 'Draw' ? (
-              <Text style={styles.drawStatusText}>GAME IS A DRAW!</Text>
+        <ScrollView contentContainerStyle={styles.gameContainer} scrollEnabled={false}>
+          {/* Game Status Banner */}
+          <View style={styles.statusBanner}>
+            {winner ? (
+              winner === 'Draw' ? (
+                <Text style={styles.drawStatusText}>GAME IS A DRAW!</Text>
+              ) : (
+                <Text style={winner === 'X' ? styles.xWinnerStatusText : styles.oWinnerStatusText}>
+                  PLAYER {winner} WINS!
+                </Text>
+              )
             ) : (
-              <Text style={winner === 'X' ? styles.xWinnerStatusText : styles.oWinnerStatusText}>
-                PLAYER {winner} WINS!
+              <Text style={isXNext ? styles.xTurnText : styles.oTurnText}>
+                PLAYER {isXNext ? 'X' : 'O'}{"'S"} TURN
               </Text>
-            )
-          ) : (
-            <Text style={isXNext ? styles.xTurnText : styles.oTurnText}>
-              PLAYER {isXNext ? 'X' : 'O'}&apos;S TURN
-            </Text>
-          )}
+            )}
+          </View>
+          <View style={styles.gridOuterContainer}>
+            <View style={styles.boardGrid}>
+              {board.map((cellValue, idx) => (
+                <Pressable
+                  key={idx}
+                  onPress={() => handleCellPress(idx)}
+                  style={({ pressed }) => [
+                    styles.cell,
+                    pressed && !cellValue && !winner && styles.cellPressed,
+                  ]}
+                >
+                  {cellValue === 'X' && (
+                    <View style={styles.symbolContainer}>
+                      <Text style={styles.xSymbol}>X</Text>
+                    </View>
+                  )}
+                  {cellValue === 'O' && (
+                    <View style={styles.symbolContainer}>
+                      <Text style={styles.oSymbol}>O</Text>
+                    </View>
+                  )}
+                </Pressable>
+              ))}
+            </View>
+          </View>
+
+          {/* Play Again / Action Button */}
+          <Pressable
+            onPress={resetGame}
+            style={({ pressed }) => [
+              styles.resetButton,
+              pressed && styles.resetButtonPressed
+            ]}
+          >
+            <View style={styles.resetButtonShadow} />
+            <View style={styles.resetButtonInner}>
+              <Text style={styles.resetButtonText}>RESET BOARD</Text>
+            </View>
+          </Pressable>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  // --- RENDER ROCK PAPER SCISSORS GAME SCREEN ---
+  if (currentScreen === 'rps') {
+    const handleRPSChoice = (choice: 'rock' | 'paper' | 'scissors') => {
+      const choices: ('rock' | 'paper' | 'scissors')[] = ['rock', 'paper', 'scissors'];
+      const comp = choices[Math.floor(Math.random() * 3)];
+      setRpsPlayer(choice);
+      setRpsComputer(comp);
+      if (choice === comp) {
+        setRpsResult("It's a draw!");
+      } else if (
+        (choice === 'rock' && comp === 'scissors') ||
+        (choice === 'paper' && comp === 'rock') ||
+        (choice === 'scissors' && comp === 'paper')
+      ) {
+        setRpsResult('You win!');
+      } else {
+        setRpsResult('You lose!');
+      }
+    };
+    const resetRPS = () => {
+      setRpsPlayer(null);
+      setRpsComputer(null);
+      setRpsResult('');
+    };
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <StatusBar barStyle="light-content" backgroundColor="#1A0B2E" />
+        <View style={styles.gameHeader}>
+          <Pressable onPress={handleGoHome} style={({ pressed }) => [styles.backButton, pressed && styles.backButtonPressed]}>
+            <View style={styles.backButtonShadow} />
+            <View style={styles.backButtonInner}>
+              <Text style={styles.backButtonText}>BACK</Text>
+            </View>
+          </Pressable>
+          <Text style={styles.gameHeaderTitle}>ROCK PAPER SCISSORS</Text>
+          <View style={{ width: 68 }} />
         </View>
-        <View style={styles.gridOuterContainer}>
-          <View style={styles.boardGrid}>
-            {board.map((cellValue, idx) => (
-              <Pressable
-                key={idx}
-                onPress={() => handleCellPress(idx)}
-                style={({ pressed }) => [
-                  styles.cell,
-                  pressed && !cellValue && !winner && styles.cellPressed,
-                ]}
-              >
-                {cellValue === 'X' && (
-                  <View style={styles.symbolContainer}>
-
-                    <Text style={styles.xSymbol}>X</Text>
-                  </View>
-                )}
-                {cellValue === 'O' && (
-                  <View style={styles.symbolContainer}>
-
-                    <Text style={styles.oSymbol}>O</Text>
-                  </View>
-                )}
+        <ScrollView contentContainerStyle={styles.gameContainer} scrollEnabled={false}>
+          <View style={styles.rpsInfo}>
+            <Text style={styles.rpsResultText}>{rpsResult}</Text>
+            <View style={styles.rpsChoices}>
+              <Pressable onPress={() => handleRPSChoice('rock')} style={styles.rpsButton}>
+                <Text style={styles.rpsButtonText}>Rock</Text>
               </Pressable>
-            ))}
+              <Pressable onPress={() => handleRPSChoice('paper')} style={styles.rpsButton}>
+                <Text style={styles.rpsButtonText}>Paper</Text>
+              </Pressable>
+              <Pressable onPress={() => handleRPSChoice('scissors')} style={styles.rpsButton}>
+                <Text style={styles.rpsButtonText}>Scissors</Text>
+              </Pressable>
+            </View>
           </View>
-        </View>
+          <Pressable onPress={resetRPS} style={({ pressed }) => [styles.resetButton, pressed && styles.resetButtonPressed]}>
+            <View style={styles.resetButtonShadow} />
+            <View style={styles.resetButtonInner}>
+              <Text style={styles.resetButtonText}>RESET</Text>
+            </View>
+          </Pressable>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
 
-        {/* Play Again / Action Button */}
-        <Pressable
-          onPress={resetGame}
-          style={({ pressed }) => [
-            styles.resetButton,
-            pressed && styles.resetButtonPressed
-          ]}
-        >
-          <View style={styles.resetButtonShadow} />
-          <View style={styles.resetButtonInner}>
-            <Text style={styles.resetButtonText}>RESET BOARD</Text>
-          </View>
-        </Pressable>
-      </ScrollView>
-    </SafeAreaView>
-  );
+  // Fallback (should never reach here)
+  return null;
 }
 
 const styles = StyleSheet.create({
@@ -294,7 +393,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     width: '100%',
     maxWidth: 400,
-    height: 320,
+    height: 200,
     position: 'relative',
     marginBottom: 24,
   },
@@ -318,7 +417,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     overflow: 'hidden',
   },
-
 
   infoContainer: {
     flex: 1,
@@ -553,5 +651,49 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '900',
     letterSpacing: 2,
+  },
+
+  // --- ROCK PAPER SCISSORS STYLES ---
+  rpsInfo: {
+    width: '100%',
+    maxWidth: 320,
+    backgroundColor: '#251540',
+    borderWidth: 3,
+    borderColor: '#000000',
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    gap: 20,
+  },
+  rpsResultText: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: '#FFFF00',
+    letterSpacing: 1,
+    textAlign: 'center',
+    minHeight: 30,
+  },
+  rpsChoices: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  rpsButton: {
+    backgroundColor: '#00FFFF',
+    borderWidth: 3,
+    borderColor: '#000000',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    shadowColor: '#000000',
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 3,
+  },
+  rpsButtonText: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#000000',
+    letterSpacing: 1,
   },
 });
