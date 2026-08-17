@@ -1,51 +1,29 @@
-# Welcome to your Expo app 👋
+# Game Garage
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Welcome to Game Garage! This is a little side project I put together to learn more about React Native and Expo Router. 
 
-## Get started
+## What is this project?
+The main aim of Game Garage is to create a fun, retro arcade style hub for classic mini games. Right now, it features two games:
+* **Tic Tac Toe**: A classic game where you play against a computer opponent. I added a slight delay to the computer's moves so it actually feels like you are playing against someone!
+* **Rock Paper Scissors**: A quick battle against the computer where your choices are shown side by side in a cool arena layout.
 
-1. Install dependencies
+Under the hood, the app uses Expo and React Native. It relies on Expo Router for handling navigation between the main menu and the different game screens. All the logic for the games is written in TypeScript and styled using standard React Native stylesheets.
 
+## How to run the app on Android
+
+If you want to try the app yourself on your Android phone, it is super easy. Just follow these steps:
+
+1. Download the **Expo Go** app from the Google Play Store on your Android device.
+2. Clone this repository to your computer and open a terminal in the project folder.
+3. Install the required packages by running:
    ```bash
    npm install
    ```
-
-2. Start the app
-
+4. Start the Expo development server:
    ```bash
-   npx expo start
+   npm run start
    ```
+5. A QR code will pop up in your terminal. Open the Expo Go app on your phone and scan that QR code. 
+6. Give it a few seconds to bundle the JavaScript, and the app will load right on your screen!
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
-# game-garage
+Enjoy the games and feel free to look through the code if you are curious about how it all works.
